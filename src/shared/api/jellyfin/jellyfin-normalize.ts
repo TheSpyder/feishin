@@ -384,6 +384,7 @@ const normalizePlaylist = (
 
 const normalizeMusicFolder = (item: z.infer<typeof jfType._response.musicFolder>): MusicFolder => {
     return {
+        collectionType: item.CollectionType,
         id: item.Id,
         name: item.Name,
     };

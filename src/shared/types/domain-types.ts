@@ -327,6 +327,7 @@ export type GenresResponse = Genre[];
 export type ListSortOrder = 'asc' | 'desc';
 
 export type MusicFolder = {
+    collectionType?: string;
     id: string;
     name: string;
 };
