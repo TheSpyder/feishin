@@ -398,6 +398,7 @@ export type Song = {
     id: string;
     imageId: null | string;
     imageUrl: null | string;
+    isAudiobook?: boolean;
     lastPlayedAt: null | string;
     lyrics: null | string;
     mbzAlbumId: null | string;

@@ -419,34 +419,12 @@ export const useScrobble = () => {
             songChangeTimeoutRef.current = setTimeout(() => {
                 const currentStatus = usePlayerStore.getState().player.status;
 
-                // Send start scrobble when song changes and the new song is playing
-                if (currentStatus === PlayerStatus.PLAYING && currentSong?.id) {
-                    sendScrobble.mutate(
-                        {
-                            apiClientProps: { serverId: currentSong._serverId || '' },
-                            query: {
-                                albumId: currentSong.albumId,
-                                event: 'start',
-                                id: currentSong.id,
-                                mediaType: mediaType,
-                                playbackRate: playbackRate,
-                                position: 0,
-                                submission: false,
-                            },
-                        },
-                        {
-                            onSuccess: () => {
-                                logger.info('Scrobbled a start event', {
-                                    id: currentSong.id,
-                                });
-                            },
-                        },
-                    );
-                }
+                // Jellyfin does not need a stop event when advancing to another song,
+                // except for audiobooks where the position is stored server-side.
+                const skipStopScrobble =
+                    previousSong?._serverType === ServerType.JELLYFIN && !previousSong.isAudiobook;
 
-                // Jellyfin does not need a stop event when advancing to another song.
-                const skipStopScrobble = previousSong?._serverType === ServerType.JELLYFIN;
-
+                // Send stop first to avoid Jellyfin clearing the now-playing report for the new song
                 if (previousSong?.id && !skipStopScrobble) {
                     sendScrobble.mutate(
                         {
@@ -468,6 +446,31 @@ export const useScrobble = () => {
                             onSuccess: () => {
                                 logger.info('Scrobbled a stop event', {
                                     id: previousSong.id,
+                                });
+                            },
+                        },
+                    );
+                }
+
+                // Send start scrobble when song changes and the new song is playing
+                if (currentStatus === PlayerStatus.PLAYING && currentSong?.id) {
+                    sendScrobble.mutate(
+                        {
+                            apiClientProps: { serverId: currentSong._serverId || '' },
+                            query: {
+                                albumId: currentSong.albumId,
+                                event: 'start',
+                                id: currentSong.id,
+                                mediaType: mediaType,
+                                playbackRate: playbackRate,
+                                position: 0,
+                                submission: false,
+                            },
+                        },
+                        {
+                            onSuccess: () => {
+                                logger.info('Scrobbled a start event', {
+                                    id: currentSong.id,
                                 });
                             },
                         },

@@ -189,6 +189,7 @@ const normalizeSong = (
         id: item.Id,
         imageId: getSongImageId(item),
         imageUrl: null,
+        isAudiobook: item.Type === 'AudioBook',
         lastPlayedAt: null,
         lyrics: null,
         mbzAlbumId: item.ProviderIds?.MusicBrainzAlbum || null,
